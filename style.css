@@ -1,33 +1,37 @@
 ```css
 :root {
-    --vermelho: #8f3030;
-    --vermelho-escuro: #732525;
+    --vermelho: #9a3434;
+    --vermelho-escuro: #7f2929;
 
-    --cinza-900: #30343a;
-    --cinza-700: #555b62;
-    --cinza-500: #777e85;
-    --cinza-300: #d5d9dd;
-    --cinza-200: #e5e7e9;
-    --cinza-100: #f1f2f3;
+    --grafite: #34383d;
+    --grafite-escuro: #292d31;
 
-    --fundo: #f5f6f7;
+    --cinza-fundo: #eef0f2;
+    --cinza-area: #e5e7e9;
+    --cinza-borda: #d9dcdf;
+    --cinza-texto: #62686e;
+    --cinza-claro: #f7f8f9;
+
     --branco: #ffffff;
 
-    --verde: #52715c;
-    --verde-fundo: #e7eee9;
+    --verde: #52705b;
+    --verde-fundo: #e8eee9;
 
-    --amarelo: #8b7437;
-    --amarelo-fundo: #f2eddc;
+    --amarelo: #8a743b;
+    --amarelo-fundo: #f3efdf;
 
-    --vermelho-fundo: #f2e3e3;
+    --vermelho-fundo: #f3e5e5;
 
-    --sombra: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --sombra: 0 2px 8px rgba(35, 40, 45, 0.06);
+    --sombra-hover: 0 5px 15px rgba(35, 40, 45, 0.09);
+
+    --raio: 8px;
 }
 
 
-/* ========================================
-   BASE
-======================================== */
+/* =====================================================
+   RESET
+===================================================== */
 
 * {
     box-sizing: border-box;
@@ -36,110 +40,142 @@
 }
 
 
-html,
-body {
+html {
     width: 100%;
     min-height: 100%;
 }
 
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
-    background: var(--fundo);
-    color: #292d32;
+    width: 100%;
+    min-height: 100vh;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: var(--cinza-fundo);
+    color: #303438;
+
     font-size: 14px;
 }
 
 
-/* ========================================
-   TOPO
-======================================== */
+/* =====================================================
+   CABEÇALHO
+===================================================== */
 
 .topo {
     width: 100%;
-    min-height: 76px;
+    min-height: 78px;
 
-    padding: 12px clamp(15px, 3vw, 40px);
+    padding: 12px clamp(18px, 3vw, 42px);
 
-    background: var(--cinza-900);
+    background:
+        linear-gradient(
+            135deg,
+            var(--grafite-escuro),
+            var(--grafite)
+        );
+
     color: white;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    gap: 20px;
+    gap: 25px;
 
-    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    border-bottom: 3px solid var(--vermelho);
+
+    box-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.15);
 }
 
 
 .identidade {
     display: flex;
     align-items: center;
+
     gap: 14px;
+
+    min-width: 0;
 }
 
 
 .logo-container {
-    width: 48px;
-    height: 48px;
+    width: 50px;
+    height: 50px;
 
     flex-shrink: 0;
 
     background: white;
-    color: var(--cinza-500);
 
-    border-radius: 5px;
+    color: #777;
+
+    border-radius: 6px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    font-size: 9px;
-    font-weight: bold;
-
     overflow: hidden;
+
+    box-shadow:
+        0 1px 4px rgba(0,0,0,.2);
 }
 
 
 .logo-container img {
     width: 100%;
     height: 100%;
+
     object-fit: contain;
 }
 
 
+.logo-container span {
+    font-size: 9px;
+    font-weight: bold;
+}
+
+
 .topo h1 {
-    font-size: clamp(18px, 2vw, 23px);
-    margin-bottom: 3px;
+    font-size: clamp(19px, 2vw, 24px);
+
+    font-weight: 600;
+
+    letter-spacing: -0.3px;
+
+    margin-bottom: 4px;
 }
 
 
 .topo p {
-    color: #c5c9cd;
+    color: #c4c8cc;
+
     font-size: 12px;
 }
 
 
-/* ========================================
-   CONTEÚDO
-======================================== */
+/* =====================================================
+   ÁREA PRINCIPAL
+===================================================== */
 
 main {
     width: 100%;
-    max-width: none;
 
     padding:
-        22px
-        clamp(12px, 2.5vw, 40px)
-        40px;
+        24px
+        clamp(16px, 3vw, 42px)
+        45px;
 }
 
 
-/* ========================================
+/* =====================================================
    DASHBOARD
-======================================== */
+===================================================== */
 
 .dashboard {
     width: 100%;
@@ -156,13 +192,16 @@ main {
 
 
 .card-indicador {
-    min-height: 105px;
+    position: relative;
+
+    min-height: 108px;
 
     background: var(--branco);
 
-    border: 1px solid var(--cinza-200);
+    border:
+        1px solid var(--cinza-borda);
 
-    border-radius: 8px;
+    border-radius: var(--raio);
 
     padding: 17px;
 
@@ -173,747 +212,96 @@ main {
 
     box-shadow: var(--sombra);
 
-    border-top: 3px solid var(--cinza-500);
+    overflow: hidden;
+
+    transition:
+        transform .15s ease,
+        box-shadow .15s ease;
+}
+
+
+.card-indicador:hover {
+    transform: translateY(-1px);
+
+    box-shadow: var(--sombra-hover);
+}
+
+
+/* pequena faixa lateral */
+
+.card-indicador::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 3px;
+
+    background: var(--cinza-texto);
+}
+
+
+.card-total::before {
+    background: var(--grafite);
+}
+
+
+.card-pendente::before,
+.card-vencido::before {
+    background: var(--vermelho);
+}
+
+
+.card-realizado::before {
+    background: var(--verde);
+}
+
+
+.card-validacao::before {
+    background: var(--amarelo);
+}
+
+
+.card-proximo::before {
+    background: #9a6c35;
 }
 
 
 .indicador-icone {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
 
     flex-shrink: 0;
 
-    border-radius: 50%;
+    border-radius: 7px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
+    background: var(--cinza-claro);
+
+    color: var(--grafite);
+
+    font-size: 17px;
     font-weight: bold;
-    font-size: 18px;
 
-    background: var(--cinza-100);
-    color: var(--cinza-700);
+    border: 1px solid var(--cinza-borda);
 }
 
 
-.indicador-info {
-    min-width: 0;
-}
-
-
-.indicador-info span {
-    display: block;
-
-    color: var(--cinza-500);
-
-    font-size: 11px;
-
-    line-height: 1.3;
-
-    margin-bottom: 5px;
-}
-
-
-.indicador-info strong {
-    display: block;
-
-    color: var(--cinza-900);
-
-    font-size: 27px;
-
-    line-height: 1;
-}
-
-
-/* CORES DOS CARDS */
-
-.card-total {
-    border-top-color: var(--cinza-700);
-}
-
-
-.card-pendente {
-    border-top-color: var(--vermelho);
-}
-
-
-.card-pendente .indicador-icone {
-    background: var(--vermelho-fundo);
+.card-pendente .indicador-icone,
+.card-vencido .indicador-icone {
     color: var(--vermelho);
-}
-
-
-.card-realizado {
-    border-top-color: var(--verde);
+    background: var(--vermelho-fundo);
+    border-color: #ead0d0;
 }
 
 
 .card-realizado .indicador-icone {
-    background: var(--verde-fundo);
     color: var(--verde);
-}
-
-
-.card-validacao {
-    border-top-color: var(--amarelo);
-}
-
-
-.card-validacao .indicador-icone {
-    background: var(--amarelo-fundo);
-    color: var(--amarelo);
-}
-
-
-.card-proximo {
-    border-top-color: #a36e35;
-}
-
-
-.card-proximo .indicador-icone {
-    background: #f1e8dc;
-    color: #8b5f2e;
-}
-
-
-.card-vencido {
-    border-top-color: var(--vermelho);
-}
-
-
-.card-vencido .indicador-icone {
-    background: var(--vermelho-fundo);
-    color: var(--vermelho);
-}
-
-
-/* ========================================
-   PAINÉIS
-======================================== */
-
-.painel {
-    width: 100%;
-
-    background: var(--branco);
-
-    border: 1px solid var(--cinza-200);
-
-    border-radius: 8px;
-
-    padding: clamp(16px, 2vw, 24px);
-
-    margin-bottom: 18px;
-
-    box-shadow: var(--sombra);
-}
-
-
-.titulo-secao {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    gap: 15px;
-
-    margin-bottom: 18px;
-}
-
-
-.painel h2 {
-    color: var(--cinza-900);
-
-    font-size: 17px;
-
-    margin-bottom: 4px;
-}
-
-
-.painel p {
-    color: var(--cinza-500);
-
-    font-size: 12px;
-}
-
-
-/* ========================================
-   BOTÕES
-======================================== */
-
-.botoes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-
-.btn {
-    height: 38px;
-
-    border: none;
-    border-radius: 5px;
-
-    padding: 0 14px;
-
-    font-size: 12px;
-    font-weight: bold;
-
-    cursor: pointer;
-
-    transition:
-        background .15s,
-        transform .05s;
-}
-
-
-.btn:active {
-    transform: translateY(1px);
-}
-
-
-.btn-vermelho {
-    background: var(--vermelho);
-    color: white;
-}
-
-
-.btn-vermelho:hover {
-    background: var(--vermelho-escuro);
-}
-
-
-.btn-cinza {
-    background: #e7e9eb;
-    color: var(--cinza-900);
-}
-
-
-.btn-cinza:hover {
-    background: #dcdfe2;
-}
-
-
-/* ========================================
-   FORMULÁRIO
-======================================== */
-
-#formDocumento {
-    width: 100%;
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(6, minmax(140px, 1fr));
-
-    gap: 14px;
-}
-
-
-.campo {
-    min-width: 0;
-
-    display: flex;
-    flex-direction: column;
-}
-
-
-.campo label {
-    color: var(--cinza-700);
-
-    font-size: 11px;
-
-    font-weight: bold;
-
-    margin-bottom: 6px;
-}
-
-
-.campo input,
-.campo select,
-.campo textarea {
-    width: 100%;
-
-    border: 1px solid var(--cinza-300);
-
-    border-radius: 5px;
-
-    background: white;
-
-    color: var(--cinza-900);
-
-    outline: none;
-
-    font-family: inherit;
-
-    font-size: 13px;
-}
-
-
-.campo input,
-.campo select {
-    height: 38px;
-
-    padding: 0 9px;
-}
-
-
-.campo textarea {
-    min-height: 70px;
-
-    padding: 9px;
-
-    resize: vertical;
-}
-
-
-.campo input:focus,
-.campo select:focus,
-.campo textarea:focus {
-    border-color: var(--vermelho);
-
-    box-shadow:
-        0 0 0 2px rgba(143,48,48,.08);
-}
-
-
-.campo-tratativa {
-    grid-column: span 2;
-}
-
-
-.form-acoes {
-    display: flex;
-    align-items: end;
-}
-
-
-/* ========================================
-   FILTROS
-======================================== */
-
-.filtros {
-    width: 100%;
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(6, minmax(140px, 1fr));
-
-    gap: 12px;
-}
-
-
-/* ========================================
-   TABELA
-======================================== */
-
-.tabela-topo {
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    margin-bottom: 15px;
-}
-
-
-.tabela-topo span {
-    color: var(--cinza-500);
-
-    font-size: 12px;
-}
-
-
-.tabela-container {
-    width: 100%;
-
-    overflow-x: auto;
-
-    border: 1px solid var(--cinza-200);
-
-    border-radius: 6px;
-}
-
-
-table {
-    width: 100%;
-
-    min-width: 1750px;
-
-    border-collapse: collapse;
-}
-
-
-thead {
-    background: #eceeef;
-}
-
-
-th {
-    padding: 10px 9px;
-
-    color: var(--cinza-700);
-
-    font-size: 10px;
-
-    text-transform: uppercase;
-
-    text-align: left;
-
-    white-space: nowrap;
-
-    border-bottom: 2px solid var(--cinza-300);
-}
-
-
-td {
-    padding: 9px;
-
-    font-size: 12px;
-
-    border-bottom: 1px solid var(--cinza-200);
-
-    white-space: nowrap;
-
-    vertical-align: middle;
-}
-
-
-tbody tr:hover {
-    background: #fafafa;
-}
-
-
-/* ========================================
-   CAMPOS EDITÁVEIS DA TABELA
-======================================== */
-
-.tabela-input {
-    width: 100%;
-
-    min-width: 90px;
-
-    border: 1px solid transparent;
-
-    border-radius: 4px;
-
-    padding: 5px;
-
-    background: transparent;
-
-    color: var(--cinza-900);
-
-    outline: none;
-}
-
-
-.tabela-input:hover {
-    border-color: var(--cinza-300);
-
-    background: white;
-}
-
-
-.tabela-input:focus {
-    border-color: var(--vermelho);
-
-    background: white;
-}
-
-
-.tabela-select {
-    border: none;
-
-    border-radius: 15px;
-
-    padding: 6px 9px;
-
-    font-size: 10px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-}
-
-
-.tabela-select:disabled {
-    opacity: .55;
-
-    cursor: not-allowed;
-}
-
-
-/* ========================================
-   STATUS
-======================================== */
-
-.status-verde {
     background: var(--verde-fundo);
-
-    color: var(--verde);
-}
-
-
-.status-vermelho {
-    background: var(--vermelho-fundo);
-
-    color: var(--vermelho);
-}
-
-
-.status-amarelo {
-    background: var(--amarelo-fundo);
-
-    color: var(--amarelo);
-}
-
-
-/* ========================================
-   VENCIMENTO
-======================================== */
-
-.dias-normal {
-    color: var(--cinza-700);
-}
-
-
-.dias-proximo {
-    color: #93652f;
-
-    font-weight: bold;
-}
-
-
-.dias-vencido {
-    color: var(--vermelho);
-
-    font-weight: bold;
-}
-
-
-/* ========================================
-   EXCLUIR
-======================================== */
-
-.btn-excluir {
-    border: none;
-
-    background: var(--vermelho-fundo);
-
-    color: var(--vermelho);
-
-    border-radius: 4px;
-
-    padding: 6px 9px;
-
-    cursor: pointer;
-
-    font-size: 11px;
-}
-
-
-.btn-excluir:hover {
-    background: #ead4d4;
-}
-
-
-/* ========================================
-   SEM RESULTADOS
-======================================== */
-
-.sem-documentos {
-    display: none;
-
-    text-align: center;
-
-    padding: 35px;
-
-    color: var(--cinza-500);
-
-    font-size: 13px;
-}
-
-
-/* ========================================
-   MODAL
-======================================== */
-
-.modal {
-    display: none;
-
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 1000;
-
-    background: rgba(0,0,0,.45);
-
-    align-items: center;
-    justify-content: center;
-
-    padding: 15px;
-}
-
-
-.modal-conteudo {
-    width: 450px;
-
-    max-width: 100%;
-
-    background: white;
-
-    border-radius: 8px;
-
-    padding: 22px;
-
-    box-shadow:
-        0 10px 30px rgba(0,0,0,.2);
-}
-
-
-.modal-header {
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    margin-bottom: 22px;
-}
-
-
-.modal-header h2 {
-    margin: 0;
-}
-
-
-.modal-header button {
-    border: none;
-
-    background: transparent;
-
-    color: var(--cinza-500);
-
-    font-size: 28px;
-
-    cursor: pointer;
-}
-
-
-.configuracao label {
-    display: block;
-
-    font-weight: bold;
-
-    margin-bottom: 8px;
-}
-
-
-.configuracao input {
-    width: 100%;
-}
-
-
-.configuracao p {
-    margin-top: 8px;
-}
-
-
-.modal-acoes {
-    display: flex;
-
-    justify-content: flex-end;
-
-    gap: 8px;
-
-    margin-top: 25px;
-}
-
-
-/* ========================================
-   RESPONSIVIDADE
-======================================== */
-
-@media (max-width: 1500px) {
-
-    .dashboard {
-        grid-template-columns:
-            repeat(3, minmax(180px, 1fr));
-    }
-
-    #formDocumento {
-        grid-template-columns:
-            repeat(4, minmax(140px, 1fr));
-    }
-
-    .filtros {
-        grid-template-columns:
-            repeat(4, minmax(140px, 1fr));
-    }
-}
-
-
-@media (max-width: 950px) {
-
-    .dashboard {
-        grid-template-columns:
-            repeat(2, minmax(160px, 1fr));
-    }
-
-    #formDocumento {
-        grid-template-columns:
-            repeat(2, minmax(140px, 1fr));
-    }
-
-    .filtros {
-        grid-template-columns:
-            repeat(2, minmax(140px, 1fr));
-    }
-
-    .campo-tratativa {
-        grid-column: span 2;
-    }
-}
-
-
-@media (max-width: 600px) {
-
-    .topo {
-        align-items: flex-start;
-
-        flex-direction: column;
-    }
-
-    .dashboard {
-        grid-template-columns: 1fr;
-    }
-
-    #formDocumento {
-        grid-template-columns: 1fr;
-    }
-
-    .filtros {
-        grid-template-columns: 1fr;
-    }
-
-    .campo-tratativa {
-        grid-column: span 1;
-    }
-
-    .titulo-secao {
-        align-items: flex-start;
-
-        flex-direction: column;
-    }
-
-    .botoes {
-        flex-direction: column;
-    }
-
-    .botoes .btn {
-        width: 100%;
-    }
-}
 ```
