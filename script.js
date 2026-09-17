@@ -4,27 +4,67 @@
 // VERSÃO LOCAL
 // ======================================================
 
-let documentos = JSON.parse(
-    localStorage.getItem("controleDocumentos")
-) || [];
+let documentos = carregarDocumentos();
+
+let configuracoes =
+    JSON.parse(
+        localStorage.getItem("configuracoesDocumentos")
+    ) || {};
 
 
 // ======================================================
-// CONFIGURAÇÕES
+// CARREGAR DOCUMENTOS
 // ======================================================
 
-let configuracoes = JSON.parse(
-    localStorage.getItem("configuracoesDocumentos")
-) || {};
+function carregarDocumentos() {
+
+    try {
+
+        const dados =
+            localStorage.getItem(
+                "controleDocumentos"
+            );
+
+        if (!dados) {
+            return [];
+        }
+
+        const lista = JSON.parse(dados);
+
+        return Array.isArray(lista)
+            ? lista
+            : [];
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar documentos:",
+            erro
+        );
+
+        return [];
+    }
+}
 
 
 // ======================================================
 // ELEMENTOS
 // ======================================================
 
-const form = document.getElementById("formDocumento");
-const tabela = document.getElementById("tabelaDocumentos");
-const semDocumentos = document.getElementById("semDocumentos");
+const form =
+    document.getElementById(
+        "formDocumento"
+    );
+
+const tabela =
+    document.getElementById(
+        "tabelaDocumentos"
+    );
+
+const semDocumentos =
+    document.getElementById(
+        "semDocumentos"
+    );
 
 
 // ======================================================
@@ -48,37 +88,53 @@ function dataHoje() {
 
     const hoje = new Date();
 
-    const ano = hoje.getFullYear();
-    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
-    const dia = String(hoje.getDate()).padStart(2, "0");
+    const ano =
+        hoje.getFullYear();
+
+    const mes =
+        String(
+            hoje.getMonth() + 1
+        ).padStart(2, "0");
+
+    const dia =
+        String(
+            hoje.getDate()
+        ).padStart(2, "0");
 
     return `${ano}-${mes}-${dia}`;
 }
 
 
 // ======================================================
-// DATA PARA EXIBIÇÃO
+// FORMATAR DATA
 // ======================================================
 
 function formatarData(data) {
 
-    if (!data) return "-";
+    if (!data) {
+        return "-";
+    }
 
-    const partes = data.split("-");
+    const partes =
+        String(data).split("-");
 
-    if (partes.length !== 3) return data;
+    if (partes.length !== 3) {
+        return data;
+    }
 
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
 
 
 // ======================================================
-// MOEDA
+// FORMATAR MOEDA
 // ======================================================
 
 function formatarMoeda(valor) {
 
-    return Number(valor || 0).toLocaleString(
+    return Number(
+        valor || 0
+    ).toLocaleString(
         "pt-BR",
         {
             style: "currency",
@@ -89,45 +145,67 @@ function formatarMoeda(valor) {
 
 
 // ======================================================
-// DIAS PARA VENCER
+// CALCULAR DIAS
 // ======================================================
 
 function calcularDias(dataVencimento) {
 
-    if (!dataVencimento) return null;
+    if (!dataVencimento) {
+        return null;
+    }
 
     const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
 
-    const vencimento = new Date(
-        dataVencimento + "T00:00:00"
+    hoje.setHours(
+        0, 0, 0, 0
     );
 
+
+    const vencimento =
+        new Date(
+            `${dataVencimento}T00:00:00`
+        );
+
+
+    if (
+        Number.isNaN(
+            vencimento.getTime()
+        )
+    ) {
+
+        return null;
+    }
+
+
     const diferenca =
-        vencimento.getTime() - hoje.getTime();
+        vencimento.getTime() -
+        hoje.getTime();
+
 
     return Math.ceil(
-        diferenca / (1000 * 60 * 60 * 24)
+        diferenca /
+        (1000 * 60 * 60 * 24)
     );
 }
 
 
 // ======================================================
-// STATUS
+// CLASSE DE STATUS
 // ======================================================
 
-function classeStatus(status, tipo) {
+function classeStatus(
+    status,
+    tipo
+) {
 
     if (tipo === "aditivo") {
 
-        if (
+        return (
             status === "Não precisa" ||
             status === "Realizado"
-        ) {
-            return "status-verde";
-        }
-
-        return "status-vermelho";
+        )
+            ? "status-verde"
+            : "status-vermelho";
     }
 
 
@@ -137,7 +215,11 @@ function classeStatus(status, tipo) {
             return "status-verde";
         }
 
-        if (status === "Contestada/Recusada") {
+        if (
+            status ===
+            "Contestada/Recusada"
+        ) {
+
             return "status-amarelo";
         }
 
@@ -147,11 +229,17 @@ function classeStatus(status, tipo) {
 
     if (tipo === "validacao") {
 
-        if (status === "Validado") {
+        if (
+            status === "Validado"
+        ) {
+
             return "status-verde";
         }
 
-        if (status === "Solicitado") {
+        if (
+            status === "Solicitado"
+        ) {
+
             return "status-amarelo";
         }
 
@@ -161,19 +249,18 @@ function classeStatus(status, tipo) {
 
     if (tipo === "baixa") {
 
-        if (status === "Baixada") {
-            return "status-verde";
-        }
-
-        return "status-vermelho";
+        return status === "Baixada"
+            ? "status-verde"
+            : "status-vermelho";
     }
+
 
     return "";
 }
 
 
 // ======================================================
-// CRIAR SELECT DE STATUS
+// SELECT DE STATUS
 // ======================================================
 
 function criarSelect(
@@ -186,22 +273,51 @@ function criarSelect(
 
     return `
         <select
-            class="tabela-select ${classeStatus(valor, tipo)}"
+            class="tabela-select ${classeStatus(
+                valor,
+                tipo
+            )}"
             ${bloqueado ? "disabled" : ""}
-            onchange="alterarStatus(${id}, '${tipo}', this.value)"
+            onchange="alterarStatus(
+                ${id},
+                '${tipo}',
+                this.value
+            )"
         >
 
-            ${opcoes.map(opcao => `
-                <option
-                    value="${opcao}"
-                    ${valor === opcao ? "selected" : ""}
-                >
-                    ${opcao}
-                </option>
-            `).join("")}
+            ${opcoes.map(
+                opcao => `
+                    <option
+                        value="${opcao}"
+                        ${valor === opcao
+                            ? "selected"
+                            : ""}
+                    >
+                        ${opcao}
+                    </option>
+                `
+            ).join("")}
 
         </select>
     `;
+}
+
+
+// ======================================================
+// ESCAPAR HTML
+// Evita problemas quando houver caracteres especiais
+// ======================================================
+
+function escaparHTML(valor) {
+
+    return String(
+        valor ?? ""
+    )
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 
@@ -213,272 +329,436 @@ function exibirDocumentos() {
 
     const filtros = {};
 
-    document.querySelectorAll("[data-filtro]").forEach(campo => {
 
-        filtros[campo.dataset.filtro] =
-            campo.value.toLowerCase().trim();
-    });
+    document
+        .querySelectorAll(
+            "[data-filtro]"
+        )
+        .forEach(campo => {
+
+            filtros[
+                campo.dataset.filtro
+            ] =
+                campo.value
+                    .toLowerCase()
+                    .trim();
+        });
 
 
-    let lista = documentos.filter(documento => {
+    const lista =
+        documentos.filter(
+            documento => {
 
-        for (const campo in filtros) {
-
-            const filtro = filtros[campo];
-
-            if (!filtro) continue;
-
-
-            if (campo === "vencimento") {
-
-                const dias = calcularDias(
-                    documento.dataVencimento
-                );
-
-                if (
-                    filtro === "proximo" &&
-                    (dias === null || dias < 0 || dias > 7)
+                for (
+                    const campo
+                    in filtros
                 ) {
-                    return false;
+
+                    const filtro =
+                        filtros[campo];
+
+
+                    if (!filtro) {
+                        continue;
+                    }
+
+
+                    // Filtro de vencimento
+                    if (
+                        campo ===
+                        "vencimento"
+                    ) {
+
+                        const dias =
+                            calcularDias(
+                                documento
+                                    .dataVencimento
+                            );
+
+
+                        if (
+                            filtro ===
+                            "proximo"
+                        ) {
+
+                            if (
+                                dias === null ||
+                                dias < 0 ||
+                                dias > 7
+                            ) {
+
+                                return false;
+                            }
+                        }
+
+
+                        if (
+                            filtro ===
+                            "vencido"
+                        ) {
+
+                            if (
+                                dias === null ||
+                                dias >= 0
+                            ) {
+
+                                return false;
+                            }
+                        }
+
+
+                        continue;
+                    }
+
+
+                    const valor =
+                        String(
+                            documento[
+                                campo
+                            ] ?? ""
+                        ).toLowerCase();
+
+
+                    if (
+                        !valor.includes(
+                            filtro
+                        )
+                    ) {
+
+                        return false;
+                    }
                 }
 
-                if (
-                    filtro === "vencido" &&
-                    (dias === null || dias >= 0)
-                ) {
-                    return false;
-                }
 
-                continue;
+                return true;
             }
-
-
-            const valor = String(
-                documento[campo] || ""
-            ).toLowerCase();
-
-
-            if (!valor.includes(filtro)) {
-                return false;
-            }
-        }
-
-        return true;
-    });
+        );
 
 
     tabela.innerHTML = "";
 
 
+    document.getElementById(
+        "contadorResultados"
+    ).textContent =
+        `${lista.length} ${
+            lista.length === 1
+                ? "documento"
+                : "documentos"
+        }`;
+
+
     if (lista.length === 0) {
 
-        semDocumentos.style.display = "block";
+        semDocumentos.style.display =
+            "block";
 
     } else {
 
-        semDocumentos.style.display = "none";
+        semDocumentos.style.display =
+            "none";
 
 
-        lista.forEach(documento => {
+        lista.forEach(
+            documento => {
 
-            const dias = calcularDias(
-                documento.dataVencimento
-            );
+                const dias =
+                    calcularDias(
+                        documento
+                            .dataVencimento
+                    );
 
 
-            let classeDias = "dias-normal";
+                let classeDias =
+                    "dias-normal";
 
-            if (dias !== null && dias < 0) {
-                classeDias = "dias-vencido";
-            } else if (dias !== null && dias <= 7) {
-                classeDias = "dias-proximo";
+
+                if (
+                    dias !== null &&
+                    dias < 0
+                ) {
+
+                    classeDias =
+                        "dias-vencido";
+
+                } else if (
+                    dias !== null &&
+                    dias <= 7
+                ) {
+
+                    classeDias =
+                        "dias-proximo";
+                }
+
+
+                const cancelado =
+                    documento
+                        .statusDocumento ===
+                    "Cancelado";
+
+
+                const linha =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                linha.innerHTML = `
+
+                    <td>
+                        ${escaparHTML(
+                            documento
+                                .tipoDocumento
+                        )}
+                    </td>
+
+
+                    <td>
+                        <input
+                            class="tabela-input"
+                            value="${escaparHTML(
+                                documento.of
+                            )}"
+                            inputmode="numeric"
+                            onchange="alterarCampo(
+                                ${documento.id},
+                                'of',
+                                this.value
+                            )"
+                        >
+                    </td>
+
+
+                    <td>
+                        <input
+                            class="tabela-input"
+                            value="${escaparHTML(
+                                documento.ri
+                            )}"
+                            inputmode="numeric"
+                            onchange="alterarCampo(
+                                ${documento.id},
+                                'ri',
+                                this.value
+                            )"
+                        >
+                    </td>
+
+
+                    <td>
+                        <input
+                            class="tabela-input"
+                            value="${escaparHTML(
+                                documento.obra
+                            )}"
+                            inputmode="numeric"
+                            onchange="alterarCampo(
+                                ${documento.id},
+                                'obra',
+                                this.value
+                            )"
+                        >
+                    </td>
+
+
+                    <td>
+                        <input
+                            class="tabela-input"
+                            value="${escaparHTML(
+                                documento
+                                    .numeroDocumento
+                            )}"
+                            onchange="alterarCampo(
+                                ${documento.id},
+                                'numeroDocumento',
+                                this.value
+                            )"
+                        >
+                    </td>
+
+
+                    <td>
+                        <input
+                            class="tabela-input"
+                            value="${escaparHTML(
+                                documento
+                                    .fornecedor
+                            )}"
+                            onchange="alterarCampo(
+                                ${documento.id},
+                                'fornecedor',
+                                this.value
+                            )"
+                        >
+                    </td>
+
+
+                    <td>
+                        <input
+                            class="tabela-input"
+                            value="${escaparHTML(
+                                documento.cnpj
+                            )}"
+                            onchange="alterarCampo(
+                                ${documento.id},
+                                'cnpj',
+                                this.value
+                            )"
+                        >
+                    </td>
+
+
+                    <td>
+                        ${formatarData(
+                            documento
+                                .dataEmissao
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${formatarData(
+                            documento
+                                .dataVencimento
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${formatarData(
+                            documento
+                                .dataRecebimento
+                        )}
+                    </td>
+
+
+                    <td class="${classeDias}">
+
+                        ${
+                            dias === null
+                                ? "-"
+                                : dias < 0
+                                    ? `${Math.abs(
+                                        dias
+                                    )} dia(s) atrasado`
+                                    : `${dias} dia(s)`
+                        }
+
+                    </td>
+
+
+                    <td>
+                        ${formatarMoeda(
+                            documento.valor
+                        )}
+                    </td>
+
+
+                    <td>
+
+                        ${criarSelect(
+                            documento.aditivo,
+                            [
+                                "Não precisa",
+                                "Pendente",
+                                "Realizado"
+                            ],
+                            "aditivo",
+                            documento.id,
+                            cancelado
+                        )}
+
+                    </td>
+
+
+                    <td>
+
+                        ${criarSelect(
+                            documento.statusDocumento,
+                            [
+                                "Ativo",
+                                "Cancelado",
+                                "Contestada/Recusada"
+                            ],
+                            "documento",
+                            documento.id
+                        )}
+
+                    </td>
+
+
+                    <td>
+
+                        ${criarSelect(
+                            documento.validacao,
+                            [
+                                "Validado",
+                                "Solicitado",
+                                "Pendente"
+                            ],
+                            "validacao",
+                            documento.id,
+                            cancelado
+                        )}
+
+                    </td>
+
+
+                    <td>
+
+                        ${criarSelect(
+                            documento.statusBaixa,
+                            [
+                                "Pendente",
+                                "Baixada"
+                            ],
+                            "baixa",
+                            documento.id,
+                            cancelado
+                        )}
+
+                    </td>
+
+
+                    <td>
+
+                        <input
+                            class="tabela-input"
+                            value="${escaparHTML(
+                                documento.tratativa
+                            )}"
+                            placeholder="Tratativa..."
+                            onchange="alterarCampo(
+                                ${documento.id},
+                                'tratativa',
+                                this.value
+                            )"
+                        >
+
+                    </td>
+
+
+                    <td>
+
+                        <button
+                            class="btn-excluir"
+                            onclick="excluirDocumento(
+                                ${documento.id}
+                            )"
+                        >
+                            Excluir
+                        </button>
+
+                    </td>
+
+                `;
+
+
+                tabela.appendChild(
+                    linha
+                );
             }
-
-
-            const cancelado =
-                documento.statusDocumento === "Cancelado";
-
-
-            const linha = document.createElement("tr");
-
-
-            linha.innerHTML = `
-
-                <td>
-                    ${documento.tipoDocumento || "-"}
-                </td>
-
-
-                <td>
-                    <input
-                        class="tabela-input"
-                        value="${documento.of || ""}"
-                        inputmode="numeric"
-                        onchange="alterarCampo(${documento.id}, 'of', this.value)"
-                    >
-                </td>
-
-
-                <td>
-                    <input
-                        class="tabela-input"
-                        value="${documento.ri || ""}"
-                        inputmode="numeric"
-                        onchange="alterarCampo(${documento.id}, 'ri', this.value)"
-                    >
-                </td>
-
-
-                <td>
-                    <input
-                        class="tabela-input"
-                        value="${documento.obra || ""}"
-                        inputmode="numeric"
-                        onchange="alterarCampo(${documento.id}, 'obra', this.value)"
-                    >
-                </td>
-
-
-                <td>
-                    <input
-                        class="tabela-input"
-                        value="${documento.numeroDocumento || ""}"
-                        onchange="alterarCampo(${documento.id}, 'numeroDocumento', this.value)"
-                    >
-                </td>
-
-
-                <td>
-                    <input
-                        class="tabela-input"
-                        value="${documento.fornecedor || ""}"
-                        onchange="alterarCampo(${documento.id}, 'fornecedor', this.value)"
-                    >
-                </td>
-
-
-                <td>
-                    <input
-                        class="tabela-input"
-                        value="${documento.cnpj || ""}"
-                        onchange="alterarCampo(${documento.id}, 'cnpj', this.value)"
-                    >
-                </td>
-
-
-                <td>
-                    ${formatarData(documento.dataEmissao)}
-                </td>
-
-
-                <td>
-                    ${formatarData(documento.dataVencimento)}
-                </td>
-
-
-                <td>
-                    ${formatarData(documento.dataRecebimento)}
-                </td>
-
-
-                <td class="${classeDias}">
-                    ${
-                        dias === null
-                            ? "-"
-                            : dias < 0
-                                ? `${Math.abs(dias)} dia(s) atrasado`
-                                : `${dias} dia(s)`
-                    }
-                </td>
-
-
-                <td>
-                    ${formatarMoeda(documento.valor)}
-                </td>
-
-
-                <td>
-                    ${criarSelect(
-                        documento.aditivo,
-                        [
-                            "Não precisa",
-                            "Pendente",
-                            "Realizado"
-                        ],
-                        "aditivo",
-                        documento.id,
-                        cancelado
-                    )}
-                </td>
-
-
-                <td>
-                    ${criarSelect(
-                        documento.statusDocumento,
-                        [
-                            "Ativo",
-                            "Cancelado",
-                            "Contestada/Recusada"
-                        ],
-                        "documento",
-                        documento.id
-                    )}
-                </td>
-
-
-                <td>
-                    ${criarSelect(
-                        documento.validacao,
-                        [
-                            "Validado",
-                            "Solicitado",
-                            "Pendente"
-                        ],
-                        "validacao",
-                        documento.id,
-                        cancelado
-                    )}
-                </td>
-
-
-                <td>
-                    ${criarSelect(
-                        documento.statusBaixa,
-                        [
-                            "Pendente",
-                            "Baixada"
-                        ],
-                        "baixa",
-                        documento.id,
-                        cancelado
-                    )}
-                </td>
-
-
-                <td>
-                    <input
-                        class="tabela-input"
-                        value="${documento.tratativa || ""}"
-                        placeholder="Tratativa..."
-                        onchange="alterarCampo(${documento.id}, 'tratativa', this.value)"
-                    >
-                </td>
-
-
-                <td>
-                    <button
-                        class="btn-excluir"
-                        onclick="excluirDocumento(${documento.id})"
-                    >
-                        Excluir
-                    </button>
-                </td>
-
-            `;
-
-
-            tabela.appendChild(linha);
-        });
+        );
     }
 
 
@@ -490,108 +770,191 @@ function exibirDocumentos() {
 // ADICIONAR DOCUMENTO
 // ======================================================
 
-form.addEventListener("submit", function(event) {
+form.addEventListener(
+    "submit",
+    function(event) {
 
-    event.preventDefault();
-
-
-    const ri =
-        document.getElementById("ri").value.trim();
+        event.preventDefault();
 
 
-    const novoDocumento = {
-
-        id: Date.now(),
-
-        tipoDocumento:
-            document.getElementById("tipoDocumento").value,
-
-        of:
-            document.getElementById("of").value.trim(),
-
-        ri: ri,
-
-        obra:
-            document.getElementById("obra").value.trim(),
-
-        numeroDocumento:
-            document.getElementById("numeroDocumento").value.trim(),
-
-        fornecedor:
-            document.getElementById("fornecedor").value.trim(),
-
-        cnpj:
-            document.getElementById("cnpj").value.trim(),
-
-        dataEmissao:
-            document.getElementById("dataEmissao").value,
-
-        dataVencimento:
-            document.getElementById("dataVencimento").value,
-
-        dataRecebimento:
-            dataHoje(),
-
-        valor:
-            Number(document.getElementById("valor").value || 0),
-
-        aditivo:
-            "Não precisa",
-
-        statusDocumento:
-            "Ativo",
-
-        validacao:
-            "Pendente",
-
-        statusBaixa:
-            ri ? "Baixada" : "Pendente",
-
-        tratativa:
-            document.getElementById("tratativa").value.trim()
-    };
+        const ri =
+            document
+                .getElementById("ri")
+                .value
+                .replace(/\D/g, "");
 
 
-    documentos.push(novoDocumento);
+        const novoDocumento = {
 
-    salvar();
+            id:
+                Date.now() +
+                Math.floor(
+                    Math.random() * 1000
+                ),
 
-    form.reset();
+            tipoDocumento:
+                document
+                    .getElementById(
+                        "tipoDocumento"
+                    )
+                    .value,
 
-    exibirDocumentos();
-});
+            of:
+                document
+                    .getElementById("of")
+                    .value
+                    .replace(/\D/g, ""),
+
+            ri: ri,
+
+            obra:
+                document
+                    .getElementById("obra")
+                    .value
+                    .replace(/\D/g, ""),
+
+            numeroDocumento:
+                document
+                    .getElementById(
+                        "numeroDocumento"
+                    )
+                    .value
+                    .trim(),
+
+            fornecedor:
+                document
+                    .getElementById(
+                        "fornecedor"
+                    )
+                    .value
+                    .trim(),
+
+            cnpj:
+                document
+                    .getElementById(
+                        "cnpj"
+                    )
+                    .value
+                    .trim(),
+
+            dataEmissao:
+                document
+                    .getElementById(
+                        "dataEmissao"
+                    )
+                    .value,
+
+            dataVencimento:
+                document
+                    .getElementById(
+                        "dataVencimento"
+                    )
+                    .value,
+
+            dataRecebimento:
+                dataHoje(),
+
+            valor:
+                Number(
+                    document
+                        .getElementById(
+                            "valor"
+                        )
+                        .value || 0
+                ),
+
+            aditivo:
+                "Não precisa",
+
+            statusDocumento:
+                "Ativo",
+
+            validacao:
+                "Pendente",
+
+            statusBaixa:
+                ri
+                    ? "Baixada"
+                    : "Pendente",
+
+            tratativa:
+                document
+                    .getElementById(
+                        "tratativa"
+                    )
+                    .value
+                    .trim()
+        };
+
+
+        documentos.push(
+            novoDocumento
+        );
+
+
+        salvar();
+
+
+        form.reset();
+
+
+        exibirDocumentos();
+
+
+        alert(
+            "Documento adicionado com sucesso."
+        );
+    }
+);
 
 
 // ======================================================
 // ALTERAR CAMPO
 // ======================================================
 
-function alterarCampo(id, campo, valor) {
+function alterarCampo(
+    id,
+    campo,
+    valor
+) {
 
     const documento =
-        documentos.find(item => item.id === id);
+        documentos.find(
+            item => item.id === id
+        );
 
-    if (!documento) return;
+
+    if (!documento) {
+        return;
+    }
 
 
-    // OF, RI e Obra: somente números
     if (
         campo === "of" ||
         campo === "ri" ||
         campo === "obra"
     ) {
 
-        valor = valor.replace(/\D/g, "");
+        valor =
+            valor.replace(
+                /\D/g,
+                ""
+            );
     }
 
 
-    documento[campo] = valor;
+    documento[campo] =
+        valor;
 
 
-    // RI preenchido -> baixa automaticamente
-    if (campo === "ri" && valor.trim() !== "") {
+    // RI preenchido = Baixada
+    if (
+        campo === "ri" &&
+        valor.trim() !== ""
+    ) {
 
-        documento.statusBaixa = "Baixada";
+        documento.statusBaixa =
+            "Baixada";
     }
 
 
@@ -605,72 +968,105 @@ function alterarCampo(id, campo, valor) {
 // ALTERAR STATUS
 // ======================================================
 
-function alterarStatus(id, tipo, valor) {
+function alterarStatus(
+    id,
+    tipo,
+    valor
+) {
 
     const documento =
-        documentos.find(item => item.id === id);
+        documentos.find(
+            item => item.id === id
+        );
 
-    if (!documento) return;
 
-
-    if (tipo === "aditivo") {
-        documento.aditivo = valor;
+    if (!documento) {
+        return;
     }
 
 
-    if (tipo === "documento") {
+    if (
+        tipo === "aditivo"
+    ) {
 
-        documento.statusDocumento = valor;
-
-
-        // Documento cancelado
-        if (valor === "Cancelado") {
-
-            documento.aditivo = "";
-            documento.validacao = "";
-            documento.statusBaixa = "";
-        }
+        documento.aditivo =
+            valor;
+    }
 
 
-        // Documento voltou a ser ativo
-        if (
-            valor !== "Cancelado" &&
-            !documento.aditivo
-        ) {
+    if (
+        tipo === "documento"
+    ) {
 
-            documento.aditivo = "Não precisa";
-        }
+        documento.statusDocumento =
+            valor;
 
 
         if (
-            valor !== "Cancelado" &&
-            !documento.validacao
+            valor === "Cancelado"
         ) {
 
-            documento.validacao = "Pendente";
-        }
+            documento.aditivo =
+                "";
 
-
-        if (
-            valor !== "Cancelado" &&
-            !documento.statusBaixa
-        ) {
+            documento.validacao =
+                "";
 
             documento.statusBaixa =
-                documento.ri
-                    ? "Baixada"
-                    : "Pendente";
+                "";
+        }
+
+
+        if (
+            valor !== "Cancelado"
+        ) {
+
+            if (
+                !documento.aditivo
+            ) {
+
+                documento.aditivo =
+                    "Não precisa";
+            }
+
+
+            if (
+                !documento.validacao
+            ) {
+
+                documento.validacao =
+                    "Pendente";
+            }
+
+
+            if (
+                !documento.statusBaixa
+            ) {
+
+                documento.statusBaixa =
+                    documento.ri
+                        ? "Baixada"
+                        : "Pendente";
+            }
         }
     }
 
 
-    if (tipo === "validacao") {
-        documento.validacao = valor;
+    if (
+        tipo === "validacao"
+    ) {
+
+        documento.validacao =
+            valor;
     }
 
 
-    if (tipo === "baixa") {
-        documento.statusBaixa = valor;
+    if (
+        tipo === "baixa"
+    ) {
+
+        documento.statusBaixa =
+            valor;
     }
 
 
@@ -687,21 +1083,31 @@ function alterarStatus(id, tipo, valor) {
 function excluirDocumento(id) {
 
     const documento =
-        documentos.find(item => item.id === id);
-
-    if (!documento) return;
-
-
-    const confirmar = confirm(
-        `Excluir o documento ${documento.numeroDocumento}?`
-    );
+        documentos.find(
+            item => item.id === id
+        );
 
 
-    if (!confirmar) return;
+    if (!documento) {
+        return;
+    }
+
+
+    const confirmar =
+        confirm(
+            `Deseja excluir o documento ${documento.numeroDocumento}?`
+        );
+
+
+    if (!confirmar) {
+        return;
+    }
 
 
     documentos =
-        documentos.filter(item => item.id !== id);
+        documentos.filter(
+            item => item.id !== id
+        );
 
 
     salvar();
@@ -722,75 +1128,97 @@ function atualizarDashboard() {
 
     const aditivosPendentes =
         documentos.filter(
-            d => d.aditivo === "Pendente"
+            d =>
+                d.aditivo ===
+                "Pendente"
         ).length;
 
 
     const aditivosRealizados =
         documentos.filter(
-            d => d.aditivo === "Realizado"
+            d =>
+                d.aditivo ===
+                "Realizado"
         ).length;
 
 
     const validacoesPendentes =
         documentos.filter(
-            d => d.validacao === "Pendente"
+            d =>
+                d.validacao ===
+                "Pendente"
         ).length;
 
 
     const proximos =
-        documentos.filter(d => {
+        documentos.filter(
+            d => {
 
-            const dias =
-                calcularDias(d.dataVencimento);
+                const dias =
+                    calcularDias(
+                        d.dataVencimento
+                    );
 
-            return (
-                dias !== null &&
-                dias >= 0 &&
-                dias <= 7
-            );
-        }).length;
+                return (
+                    dias !== null &&
+                    dias >= 0 &&
+                    dias <= 7
+                );
+            }
+        ).length;
 
 
     const vencidos =
-        documentos.filter(d => {
+        documentos.filter(
+            d => {
 
-            const dias =
-                calcularDias(d.dataVencimento);
+                const dias =
+                    calcularDias(
+                        d.dataVencimento
+                    );
 
-            return dias !== null && dias < 0;
-
-        }).length;
+                return (
+                    dias !== null &&
+                    dias < 0
+                );
+            }
+        ).length;
 
 
     document.getElementById(
         "totalDocumentos"
-    ).textContent = total;
+    ).textContent =
+        total;
 
 
     document.getElementById(
         "totalAditivosPendentes"
-    ).textContent = aditivosPendentes;
+    ).textContent =
+        aditivosPendentes;
 
 
     document.getElementById(
         "totalAditivosRealizados"
-    ).textContent = aditivosRealizados;
+    ).textContent =
+        aditivosRealizados;
 
 
     document.getElementById(
         "totalValidacoesPendentes"
-    ).textContent = validacoesPendentes;
+    ).textContent =
+        validacoesPendentes;
 
 
     document.getElementById(
         "totalProximosVencimento"
-    ).textContent = proximos;
+    ).textContent =
+        proximos;
 
 
     document.getElementById(
         "totalVencidos"
-    ).textContent = vencidos;
+    ).textContent =
+        vencidos;
 }
 
 
@@ -798,30 +1226,35 @@ function atualizarDashboard() {
 // FILTROS
 // ======================================================
 
-document.querySelectorAll(
-    "[data-filtro]"
-).forEach(campo => {
+document
+    .querySelectorAll(
+        "[data-filtro]"
+    )
+    .forEach(campo => {
 
-    campo.addEventListener(
-        "input",
-        exibirDocumentos
-    );
+        campo.addEventListener(
+            "input",
+            exibirDocumentos
+        );
 
-    campo.addEventListener(
-        "change",
-        exibirDocumentos
-    );
-});
+        campo.addEventListener(
+            "change",
+            exibirDocumentos
+        );
+    });
 
 
 function limparFiltros() {
 
-    document.querySelectorAll(
-        "[data-filtro]"
-    ).forEach(campo => {
-
-        campo.value = "";
-    });
+    document
+        .querySelectorAll(
+            "[data-filtro]"
+        )
+        .forEach(
+            campo => {
+                campo.value = "";
+            }
+        );
 
 
     exibirDocumentos();
@@ -829,10 +1262,23 @@ function limparFiltros() {
 
 
 // ======================================================
-// BAIXAR MODELO EXCEL
+// MODELO EXCEL
 // ======================================================
 
 function baixarModeloExcel() {
+
+    if (
+        typeof XLSX ===
+        "undefined"
+    ) {
+
+        alert(
+            "A biblioteca do Excel ainda não carregou. Atualize a página e tente novamente."
+        );
+
+        return;
+    }
+
 
     const dados = [
 
@@ -846,14 +1292,16 @@ function baixarModeloExcel() {
             "CNPJ do fornecedor": "00.000.000/0001-00",
             "Data da emissão": "17/09/2026",
             "Data do vencimento": "17/10/2026",
-            "Valor da nota": 1500.00
+            "Valor da nota": 1500
         }
 
     ];
 
 
     const planilha =
-        XLSX.utils.json_to_sheet(dados);
+        XLSX.utils.json_to_sheet(
+            dados
+        );
 
 
     const livro =
@@ -883,186 +1331,327 @@ function importarExcel(event) {
     const arquivo =
         event.target.files[0];
 
-    if (!arquivo) return;
+
+    if (!arquivo) {
+        return;
+    }
+
+
+    if (
+        typeof XLSX ===
+        "undefined"
+    ) {
+
+        alert(
+            "A biblioteca do Excel não carregou. Atualize a página e tente novamente."
+        );
+
+        return;
+    }
 
 
     const leitor =
         new FileReader();
 
 
-    leitor.onload = function(e) {
+    leitor.onload =
+        function(e) {
 
-        try {
+            try {
 
-            const dados =
-                new Uint8Array(e.target.result);
-
-
-            const livro =
-                XLSX.read(dados, {
-                    type: "array"
-                });
+                const dados =
+                    new Uint8Array(
+                        e.target.result
+                    );
 
 
-            const primeiraAba =
-                livro.Sheets[livro.SheetNames[0]];
+                const livro =
+                    XLSX.read(
+                        dados,
+                        {
+                            type: "array"
+                        }
+                    );
 
 
-            const linhas =
-                XLSX.utils.sheet_to_json(
-                    primeiraAba,
-                    {
-                        defval: ""
-                    }
-                );
+                const nomeAba =
+                    livro.SheetNames[0];
 
 
-            if (linhas.length === 0) {
-
-                alert(
-                    "A planilha está vazia."
-                );
-
-                return;
-            }
+                const aba =
+                    livro.Sheets[
+                        nomeAba
+                    ];
 
 
-            let adicionados = 0;
+                const linhas =
+                    XLSX.utils.sheet_to_json(
+                        aba,
+                        {
+                            defval: ""
+                        }
+                    );
 
 
-            linhas.forEach(linha => {
+                if (
+                    linhas.length === 0
+                ) {
 
-                const tipo =
-                    String(
-                        linha["Tipo de Documento"] || ""
-                    ).trim();
+                    alert(
+                        "A planilha está vazia."
+                    );
 
-
-                const numero =
-                    String(
-                        linha["Número do documento"] || ""
-                    ).trim();
-
-
-                const fornecedor =
-                    String(
-                        linha["Fornecedor"] || ""
-                    ).trim();
-
-
-                if (!tipo || !numero || !fornecedor) {
                     return;
                 }
 
 
-                const ri =
-                    String(
-                        linha["RI"] || ""
-                    ).replace(/\D/g, "");
+                let adicionados = 0;
 
 
-                const documento = {
+                linhas.forEach(
+                    linha => {
 
-                    id:
-                        Date.now() +
-                        Math.floor(
-                            Math.random() * 100000
-                        ),
-
-                    tipoDocumento:
-                        tipo.toUpperCase(),
-
-                    of:
-                        String(
-                            linha["OF"] || ""
-                        ).replace(/\D/g, ""),
-
-                    ri: ri,
-
-                    obra:
-                        String(
-                            linha["Obra"] || ""
-                        ).replace(/\D/g, ""),
-
-                    numeroDocumento:
-                        numero,
-
-                    fornecedor:
-                        fornecedor,
-
-                    cnpj:
-                        String(
-                            linha["CNPJ do fornecedor"] || ""
-                        ),
-
-                    dataEmissao:
-                        converterDataExcel(
-                            linha["Data da emissão"]
-                        ),
-
-                    dataVencimento:
-                        converterDataExcel(
-                            linha["Data do vencimento"]
-                        ),
-
-                    dataRecebimento:
-                        dataHoje(),
-
-                    valor:
-                        Number(
-                            linha["Valor da nota"] || 0
-                        ),
-
-                    aditivo:
-                        "Não precisa",
-
-                    statusDocumento:
-                        "Ativo",
-
-                    validacao:
-                        "Pendente",
-
-                    statusBaixa:
-                        ri
-                            ? "Baixada"
-                            : "Pendente",
-
-                    tratativa:
-                        ""
-                };
+                        const tipo =
+                            String(
+                                linha[
+                                    "Tipo de Documento"
+                                ] || ""
+                            ).trim();
 
 
-                documentos.push(documento);
-
-                adicionados++;
-            });
-
-
-            salvar();
-
-            exibirDocumentos();
+                        const numero =
+                            String(
+                                linha[
+                                    "Número do documento"
+                                ] || ""
+                            ).trim();
 
 
-            alert(
-                `${adicionados} documento(s) importado(s) com sucesso.`
-            );
+                        const fornecedor =
+                            String(
+                                linha[
+                                    "Fornecedor"
+                                ] || ""
+                            ).trim();
 
 
-        } catch (erro) {
+                        // Ignora linhas vazias/incompletas
+                        if (
+                            !tipo ||
+                            !numero ||
+                            !fornecedor
+                        ) {
 
-            console.error(erro);
-
-            alert(
-                "Não foi possível ler a planilha. Verifique se ela segue o modelo."
-            );
-        }
-
-
-        event.target.value = "";
-    };
+                            return;
+                        }
 
 
-    leitor.readAsArrayBuffer(arquivo);
+                        const ri =
+                            String(
+                                linha["RI"] || ""
+                            )
+                            .replace(
+                                /\D/g,
+                                ""
+                            );
+
+
+                        const novo =
+                            {
+
+                                id:
+                                    Date.now() +
+                                    Math.floor(
+                                        Math.random() *
+                                        1000000
+                                    ),
+
+                                tipoDocumento:
+                                    tipo.toUpperCase(),
+
+                                of:
+                                    String(
+                                        linha["OF"] ||
+                                        ""
+                                    )
+                                    .replace(
+                                        /\D/g,
+                                        ""
+                                    ),
+
+                                ri: ri,
+
+                                obra:
+                                    String(
+                                        linha["Obra"] ||
+                                        ""
+                                    )
+                                    .replace(
+                                        /\D/g,
+                                        ""
+                                    ),
+
+                                numeroDocumento:
+                                    numero,
+
+                                fornecedor:
+                                    fornecedor,
+
+                                cnpj:
+                                    String(
+                                        linha[
+                                            "CNPJ do fornecedor"
+                                        ] || ""
+                                    ),
+
+                                dataEmissao:
+                                    converterDataExcel(
+                                        linha[
+                                            "Data da emissão"
+                                        ]
+                                    ),
+
+                                dataVencimento:
+                                    converterDataExcel(
+                                        linha[
+                                            "Data do vencimento"
+                                        ]
+                                    ),
+
+                                dataRecebimento:
+                                    dataHoje(),
+
+                                valor:
+                                    converterValor(
+                                        linha[
+                                            "Valor da nota"
+                                        ]
+                                    ),
+
+                                aditivo:
+                                    "Não precisa",
+
+                                statusDocumento:
+                                    "Ativo",
+
+                                validacao:
+                                    "Pendente",
+
+                                statusBaixa:
+                                    ri
+                                        ? "Baixada"
+                                        : "Pendente",
+
+                                tratativa:
+                                    ""
+                            };
+
+
+                        documentos.push(
+                            novo
+                        );
+
+
+                        adicionados++;
+                    }
+                );
+
+
+                salvar();
+
+                exibirDocumentos();
+
+
+                alert(
+                    `${adicionados} documento(s) importado(s) com sucesso.`
+                );
+
+
+            } catch (erro) {
+
+                console.error(
+                    "Erro ao importar:",
+                    erro
+                );
+
+
+                alert(
+                    "Não foi possível ler a planilha. Baixe o modelo e confira os nomes das colunas."
+                );
+            }
+
+
+            event.target.value = "";
+        };
+
+
+    leitor.readAsArrayBuffer(
+        arquivo
+    );
+}
+
+
+// ======================================================
+// CONVERTER VALOR
+// ======================================================
+
+function converterValor(valor) {
+
+    if (
+        typeof valor ===
+        "number"
+    ) {
+
+        return valor;
+    }
+
+
+    if (!valor) {
+        return 0;
+    }
+
+
+    let texto =
+        String(valor)
+            .trim();
+
+
+    // Exemplo: R$ 1.500,50
+    texto =
+        texto
+            .replace(
+                /R\$/gi,
+                ""
+            )
+            .trim();
+
+
+    if (
+        texto.includes(",")
+    ) {
+
+        texto =
+            texto
+                .replace(
+                    /\./g,
+                    ""
+                )
+                .replace(
+                    ",",
+                    "."
+                );
+    }
+
+
+    const numero =
+        Number(texto);
+
+
+    return Number.isNaN(
+        numero
+    )
+        ? 0
+        : numero;
 }
 
 
@@ -1070,22 +1659,36 @@ function importarExcel(event) {
 // CONVERTER DATA DO EXCEL
 // ======================================================
 
-function converterDataExcel(valor) {
+function converterDataExcel(
+    valor
+) {
 
-    if (!valor) return "";
+    if (!valor) {
+        return "";
+    }
 
 
-    // Data do Excel como número
-    if (typeof valor === "number") {
+    if (
+        typeof valor ===
+        "number"
+    ) {
 
         const data =
-            XLSX.SSF.parse_date_code(valor);
+            XLSX.SSF.parse_date_code(
+                valor
+            );
 
 
-        if (!data) return "";
+        if (!data) {
+            return "";
+        }
 
 
-        return `${data.y}-${String(data.m).padStart(2, "0")}-${String(data.d).padStart(2, "0")}`;
+        return `${data.y}-${String(
+            data.m
+        ).padStart(2, "0")}-${String(
+            data.d
+        ).padStart(2, "0")}`;
     }
 
 
@@ -1093,7 +1696,6 @@ function converterDataExcel(valor) {
         String(valor).trim();
 
 
-    // dd/mm/yyyy
     if (
         texto.includes("/")
     ) {
@@ -1102,26 +1704,42 @@ function converterDataExcel(valor) {
             texto.split("/");
 
 
-        if (partes.length === 3) {
+        if (
+            partes.length === 3
+        ) {
 
-            let dia = partes[0];
-            let mes = partes[1];
-            let ano = partes[2];
+            let dia =
+                partes[0];
+
+            let mes =
+                partes[1];
+
+            let ano =
+                partes[2];
 
 
-            if (ano.length === 2) {
-                ano = "20" + ano;
+            if (
+                ano.length === 2
+            ) {
+
+                ano =
+                    "20" + ano;
             }
 
 
-            return `${ano}-${String(mes).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+            return `${ano}-${String(
+                mes
+            ).padStart(2, "0")}-${String(
+                dia
+            ).padStart(2, "0")}`;
         }
     }
 
 
-    // yyyy-mm-dd
     if (
-        texto.match(/^\d{4}-\d{2}-\d{2}$/)
+        /^\d{4}-\d{2}-\d{2}$/.test(
+            texto
+        )
     ) {
 
         return texto;
@@ -1138,7 +1756,9 @@ function converterDataExcel(valor) {
 
 function exportarExcel() {
 
-    if (documentos.length === 0) {
+    if (
+        documentos.length === 0
+    ) {
 
         alert(
             "Não existem documentos para exportar."
@@ -1149,64 +1769,71 @@ function exportarExcel() {
 
 
     const dados =
-        documentos.map(d => ({
+        documentos.map(
+            documento => ({
 
-            "Tipo de Documento":
-                d.tipoDocumento,
+                "Tipo de Documento":
+                    documento.tipoDocumento,
 
-            "OF":
-                d.of,
+                "OF":
+                    documento.of,
 
-            "RI":
-                d.ri,
+                "RI":
+                    documento.ri,
 
-            "Obra":
-                d.obra,
+                "Obra":
+                    documento.obra,
 
-            "Número do documento":
-                d.numeroDocumento,
+                "Número do documento":
+                    documento.numeroDocumento,
 
-            "Fornecedor":
-                d.fornecedor,
+                "Fornecedor":
+                    documento.fornecedor,
 
-            "CNPJ do fornecedor":
-                d.cnpj,
+                "CNPJ do fornecedor":
+                    documento.cnpj,
 
-            "Data da emissão":
-                d.dataEmissao,
+                "Data da emissão":
+                    documento.dataEmissao,
 
-            "Data do vencimento":
-                d.dataVencimento,
+                "Data do vencimento":
+                    documento.dataVencimento,
 
-            "Data do recebimento":
-                d.dataRecebimento,
+                "Data do recebimento":
+                    documento.dataRecebimento,
 
-            "Dias para vencer":
-                calcularDias(d.dataVencimento),
+                "Dias para vencer":
+                    calcularDias(
+                        documento
+                            .dataVencimento
+                    ),
 
-            "Valor da nota":
-                d.valor,
+                "Valor da nota":
+                    documento.valor,
 
-            "Aditivo":
-                d.aditivo,
+                "Aditivo":
+                    documento.aditivo,
 
-            "Status do Documento":
-                d.statusDocumento,
+                "Status do Documento":
+                    documento.statusDocumento,
 
-            "Validação":
-                d.validacao,
+                "Validação":
+                    documento.validacao,
 
-            "Status da baixa":
-                d.statusBaixa,
+                "Status da baixa":
+                    documento.statusBaixa,
 
-            "Tratativa":
-                d.tratativa
+                "Tratativa":
+                    documento.tratativa
 
-        }));
+            })
+        );
 
 
     const planilha =
-        XLSX.utils.json_to_sheet(dados);
+        XLSX.utils.json_to_sheet(
+            dados
+        );
 
 
     const livro =
@@ -1256,29 +1883,45 @@ function fazerBackup() {
                 )
             ],
             {
-                type: "application/json"
+                type:
+                    "application/json"
             }
         );
 
 
     const url =
-        URL.createObjectURL(arquivo);
+        URL.createObjectURL(
+            arquivo
+        );
 
 
     const link =
-        document.createElement("a");
+        document.createElement(
+            "a"
+        );
 
 
     link.href = url;
+
 
     link.download =
         `backup_documentos_${dataHoje()}.json`;
 
 
+    document.body.appendChild(
+        link
+    );
+
+
     link.click();
 
 
-    URL.revokeObjectURL(url);
+    link.remove();
+
+
+    URL.revokeObjectURL(
+        url
+    );
 }
 
 
@@ -1286,100 +1929,121 @@ function fazerBackup() {
 // RESTAURAR BACKUP
 // ======================================================
 
-function restaurarBackup(event) {
+function restaurarBackup(
+    event
+) {
 
     const arquivo =
         event.target.files[0];
 
-    if (!arquivo) return;
+
+    if (!arquivo) {
+        return;
+    }
 
 
     const leitor =
         new FileReader();
 
 
-    leitor.onload = function(e) {
+    leitor.onload =
+        function(e) {
 
-        try {
+            try {
 
-            const backup =
-                JSON.parse(e.target.result);
+                const backup =
+                    JSON.parse(
+                        e.target.result
+                    );
 
 
-            if (
-                !backup.documentos ||
-                !Array.isArray(
-                    backup.documentos
-                )
-            ) {
+                if (
+                    !backup.documentos ||
+                    !Array.isArray(
+                        backup.documentos
+                    )
+                ) {
 
-                throw new Error(
-                    "Backup inválido"
+                    throw new Error(
+                        "Backup inválido"
+                    );
+                }
+
+
+                const confirmar =
+                    confirm(
+                        "Restaurar este backup substituirá os dados atuais. Deseja continuar?"
+                    );
+
+
+                if (!confirmar) {
+                    return;
+                }
+
+
+                documentos =
+                    backup.documentos;
+
+
+                configuracoes =
+                    backup.configuracoes ||
+                    {};
+
+
+                salvar();
+
+
+                localStorage.setItem(
+                    "configuracoesDocumentos",
+                    JSON.stringify(
+                        configuracoes
+                    )
+                );
+
+
+                carregarLogo();
+
+                exibirDocumentos();
+
+
+                alert(
+                    "Backup restaurado com sucesso."
+                );
+
+
+            } catch (erro) {
+
+                console.error(
+                    erro
+                );
+
+
+                alert(
+                    "Arquivo de backup inválido."
                 );
             }
 
 
-            const confirmar =
-                confirm(
-                    "Restaurar este backup substituirá os dados atuais. Deseja continuar?"
-                );
+            event.target.value = "";
+        };
 
 
-            if (!confirmar) return;
-
-
-            documentos =
-                backup.documentos;
-
-
-            configuracoes =
-                backup.configuracoes || {};
-
-
-            salvar();
-
-
-            localStorage.setItem(
-                "configuracoesDocumentos",
-                JSON.stringify(configuracoes)
-            );
-
-
-            carregarLogo();
-
-            exibirDocumentos();
-
-
-            alert(
-                "Backup restaurado com sucesso."
-            );
-
-
-        } catch (erro) {
-
-            alert(
-                "Arquivo de backup inválido."
-            );
-        }
-
-
-        event.target.value = "";
-    };
-
-
-    leitor.readAsText(arquivo);
+    leitor.readAsText(
+        arquivo
+    );
 }
 
 
 // ======================================================
-// CONFIGURAÇÕES / LOGO
+// LOGO
 // ======================================================
 
 function abrirConfiguracoes() {
 
     document.getElementById(
         "modalConfiguracoes"
-    ).style.display = "flex";
+    ).style.display =
+        "flex";
 }
 
 
@@ -1387,7 +2051,8 @@ function fecharConfiguracoes() {
 
     document.getElementById(
         "modalConfiguracoes"
-    ).style.display = "none";
+    ).style.display =
+        "none";
 }
 
 
@@ -1413,30 +2078,36 @@ function salvarLogo() {
         new FileReader();
 
 
-    leitor.onload = function(e) {
+    leitor.onload =
+        function(e) {
 
-        configuracoes.logo =
-            e.target.result;
-
-
-        localStorage.setItem(
-            "configuracoesDocumentos",
-            JSON.stringify(configuracoes)
-        );
+            configuracoes.logo =
+                e.target.result;
 
 
-        carregarLogo();
-
-        fecharConfiguracoes();
-
-
-        alert(
-            "Logo salvo com sucesso."
-        );
-    };
+            localStorage.setItem(
+                "configuracoesDocumentos",
+                JSON.stringify(
+                    configuracoes
+                )
+            );
 
 
-    leitor.readAsDataURL(arquivo);
+            carregarLogo();
+
+
+            fecharConfiguracoes();
+
+
+            alert(
+                "Logo salvo com sucesso."
+            );
+        };
+
+
+    leitor.readAsDataURL(
+        arquivo
+    );
 }
 
 
@@ -1453,7 +2124,10 @@ function carregarLogo() {
     ) {
 
         container.innerHTML =
-            `<img src="${configuracoes.logo}" alt="Logo">`;
+            `<img
+                src="${configuracoes.logo}"
+                alt="Logo da empresa"
+            >`;
 
     } else {
 
@@ -1465,11 +2139,15 @@ function carregarLogo() {
 
 function removerLogo() {
 
-    configuracoes.logo = "";
+    configuracoes.logo =
+        "";
+
 
     localStorage.setItem(
         "configuracoesDocumentos",
-        JSON.stringify(configuracoes)
+        JSON.stringify(
+            configuracoes
+        )
     );
 
 
