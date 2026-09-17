@@ -1,153 +1,475 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Notas Fiscais</title>
+    <title>Controle de Documentos</title>
+
+    <!-- Biblioteca para trabalhar com Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <header>
-        <div>
-            <h1>Controle de Notas Fiscais</h1>
-            <p>Acompanhamento interno</p>
+<header class="topo">
+    <div class="identidade">
+        <div id="logoContainer" class="logo-container">
+            <span>LOGO</span>
         </div>
-    </header>
 
-    <main>
+        <div>
+            <h1>Controle de Documentos</h1>
+            <p>Gestão de notas fiscais e documentos</p>
+        </div>
+    </div>
 
-        <!-- RESUMO -->
-        <section class="resumo">
-            <div class="card">
-                <span>Total de NFs</span>
-                <strong id="totalNFs">0</strong>
+    <div class="acoes-topo">
+        <button class="btn secundario" onclick="abrirConfiguracoes()">
+            ⚙ Configurações
+        </button>
+    </div>
+</header>
+
+
+<main>
+
+    <!-- INDICADORES -->
+
+    <section class="dashboard">
+
+        <div class="indicador">
+            <span>Total de documentos</span>
+            <strong id="totalDocumentos">0</strong>
+        </div>
+
+        <div class="indicador vermelho">
+            <span>Aditivos pendentes</span>
+            <strong id="totalAditivosPendentes">0</strong>
+        </div>
+
+        <div class="indicador verde">
+            <span>Aditivos realizados</span>
+            <strong id="totalAditivosRealizados">0</strong>
+        </div>
+
+        <div class="indicador amarelo">
+            <span>Validações pendentes</span>
+            <strong id="totalValidacoesPendentes">0</strong>
+        </div>
+
+        <div class="indicador alerta">
+            <span>Próximos do vencimento</span>
+            <strong id="totalProximosVencimento">0</strong>
+        </div>
+
+        <div class="indicador vencido">
+            <span>Documentos vencidos</span>
+            <strong id="totalVencidos">0</strong>
+        </div>
+
+    </section>
+
+
+    <!-- AÇÕES -->
+
+    <section class="painel acoes">
+
+        <div>
+            <h2>Importação e dados</h2>
+            <p>Importe, exporte ou faça backup dos documentos.</p>
+        </div>
+
+        <div class="botoes">
+
+            <button class="btn principal" onclick="document.getElementById('arquivoExcel').click()">
+                📥 Importar Excel
+            </button>
+
+            <button class="btn secundario" onclick="baixarModeloExcel()">
+                📋 Baixar modelo
+            </button>
+
+            <button class="btn secundario" onclick="exportarExcel()">
+                📤 Exportar Excel
+            </button>
+
+            <button class="btn secundario" onclick="fazerBackup()">
+                💾 Backup
+            </button>
+
+            <button class="btn secundario" onclick="document.getElementById('arquivoBackup').click()">
+                ↩ Restaurar
+            </button>
+
+            <input
+                type="file"
+                id="arquivoExcel"
+                accept=".xlsx,.xls"
+                hidden
+                onchange="importarExcel(event)"
+            >
+
+            <input
+                type="file"
+                id="arquivoBackup"
+                accept=".json"
+                hidden
+                onchange="restaurarBackup(event)"
+            >
+
+        </div>
+
+    </section>
+
+
+    <!-- CADASTRO -->
+
+    <section class="painel">
+
+        <div class="titulo-secao">
+            <div>
+                <h2>Adicionar documento</h2>
+                <p>Cadastre uma nova nota manualmente.</p>
+            </div>
+        </div>
+
+
+        <form id="formDocumento">
+
+            <div class="campo">
+                <label>Tipo de Documento</label>
+
+                <select id="tipoDocumento" required>
+                    <option value="">Selecione</option>
+                    <option value="FATURA">FATURA</option>
+                    <option value="NFSE">NFSE</option>
+                    <option value="NFE">NFE</option>
+                    <option value="CTE">CTE</option>
+                </select>
             </div>
 
-            <div class="card">
-                <span>Pendentes</span>
-                <strong id="totalPendentes">0</strong>
+
+            <div class="campo">
+                <label>OF</label>
+                <input
+                    type="text"
+                    id="of"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    placeholder="Somente números"
+                >
             </div>
 
-            <div class="card">
-                <span>Aprovadas</span>
-                <strong id="totalAprovadas">0</strong>
+
+            <div class="campo">
+                <label>RI</label>
+                <input
+                    type="text"
+                    id="ri"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    placeholder="Somente números"
+                >
             </div>
 
-            <div class="card">
-                <span>Valor total</span>
-                <strong id="valorTotal">R$ 0,00</strong>
+
+            <div class="campo">
+                <label>Obra</label>
+                <input
+                    type="text"
+                    id="obra"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    placeholder="Somente números"
+                >
             </div>
-        </section>
 
 
-        <!-- CADASTRO -->
-        <section class="painel">
+            <div class="campo">
+                <label>Número do documento</label>
+                <input type="text" id="numeroDocumento" required>
+            </div>
 
-            <h2>Nova nota fiscal</h2>
 
-            <form id="formNF">
+            <div class="campo">
+                <label>Fornecedor</label>
+                <input type="text" id="fornecedor" required>
+            </div>
 
-                <div class="campo">
-                    <label for="numero">Número da NF</label>
-                    <input type="text" id="numero" placeholder="Ex.: 123456" required>
-                </div>
 
-                <div class="campo">
-                    <label for="fornecedor">Fornecedor</label>
-                    <input type="text" id="fornecedor" placeholder="Nome do fornecedor" required>
-                </div>
+            <div class="campo">
+                <label>CNPJ do fornecedor</label>
+                <input type="text" id="cnpj" placeholder="00.000.000/0000-00">
+            </div>
 
-                <div class="campo">
-                    <label for="valor">Valor</label>
-                    <input type="number" id="valor" step="0.01" min="0" placeholder="0,00" required>
-                </div>
 
-                <div class="campo">
-                    <label for="data">Data</label>
-                    <input type="date" id="data" required>
-                </div>
+            <div class="campo">
+                <label>Data da emissão</label>
+                <input type="date" id="dataEmissao">
+            </div>
 
-                <div class="campo campo-grande">
-                    <label for="observacao">Observação</label>
-                    <input type="text" id="observacao" placeholder="Alguma informação adicional">
-                </div>
 
-                <button type="submit" class="btn-principal">
-                    + Adicionar NF
+            <div class="campo">
+                <label>Data do vencimento</label>
+                <input type="date" id="dataVencimento">
+            </div>
+
+
+            <div class="campo">
+                <label>Valor da nota</label>
+                <input type="number" id="valor" min="0" step="0.01">
+            </div>
+
+
+            <div class="campo campo-tratativa">
+                <label>Tratativa</label>
+                <textarea
+                    id="tratativa"
+                    placeholder="Descreva a tratativa, se houver..."
+                ></textarea>
+            </div>
+
+
+            <div class="form-acoes">
+                <button type="submit" class="btn principal">
+                    + Adicionar documento
                 </button>
+            </div>
 
-            </form>
+        </form>
 
-        </section>
+    </section>
 
 
-        <!-- FILTROS -->
-        <section class="painel">
+    <!-- FILTROS -->
 
-            <div class="cabecalho-tabela">
+    <section class="painel">
 
-                <div>
-                    <h2>Notas fiscais</h2>
-                    <p>Consulte e atualize o status das notas.</p>
-                </div>
+        <div class="titulo-secao">
+            <div>
+                <h2>Documentos</h2>
+                <p>Use os filtros para localizar documentos.</p>
+            </div>
 
-                <div class="filtros">
+            <button class="btn secundario" onclick="limparFiltros()">
+                Limpar filtros
+            </button>
+        </div>
 
-                    <input
-                        type="text"
-                        id="busca"
-                        placeholder="🔎 Buscar NF ou fornecedor..."
-                    >
 
-                    <select id="filtroStatus">
-                        <option value="Todos">Todos os status</option>
-                        <option value="Pendente">Pendente</option>
-                        <option value="Em análise">Em análise</option>
-                        <option value="Aprovada">Aprovada</option>
-                        <option value="Paga">Paga</option>
-                        <option value="Cancelada">Cancelada</option>
-                    </select>
+        <div class="filtros">
 
-                </div>
+            <div class="campo">
+                <label>Tipo</label>
 
+                <select data-filtro="tipoDocumento">
+                    <option value="">Todos</option>
+                    <option value="FATURA">FATURA</option>
+                    <option value="NFSE">NFSE</option>
+                    <option value="NFE">NFE</option>
+                    <option value="CTE">CTE</option>
+                </select>
             </div>
 
 
-            <!-- TABELA -->
-            <div class="tabela-container">
-
-                <table>
-
-                    <thead>
-                        <tr>
-                            <th>NF</th>
-                            <th>Fornecedor</th>
-                            <th>Valor</th>
-                            <th>Data</th>
-                            <th>Observação</th>
-                            <th>Status</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="listaNFs">
-                    </tbody>
-
-                </table>
-
+            <div class="campo">
+                <label>OF</label>
+                <input type="text" data-filtro="of">
             </div>
 
-            <div id="semResultados" class="sem-resultados">
-                Nenhuma nota fiscal encontrada.
+
+            <div class="campo">
+                <label>RI</label>
+                <input type="text" data-filtro="ri">
             </div>
 
-        </section>
 
-    </main>
+            <div class="campo">
+                <label>Obra</label>
+                <input type="text" data-filtro="obra">
+            </div>
 
-    <script src="script.js"></script>
+
+            <div class="campo">
+                <label>Número</label>
+                <input type="text" data-filtro="numeroDocumento">
+            </div>
+
+
+            <div class="campo">
+                <label>Fornecedor</label>
+                <input type="text" data-filtro="fornecedor">
+            </div>
+
+
+            <div class="campo">
+                <label>CNPJ</label>
+                <input type="text" data-filtro="cnpj">
+            </div>
+
+
+            <div class="campo">
+                <label>Aditivo</label>
+
+                <select data-filtro="aditivo">
+                    <option value="">Todos</option>
+                    <option value="Não precisa">Não precisa</option>
+                    <option value="Pendente">Pendente</option>
+                    <option value="Realizado">Realizado</option>
+                </select>
+            </div>
+
+
+            <div class="campo">
+                <label>Status do documento</label>
+
+                <select data-filtro="statusDocumento">
+                    <option value="">Todos</option>
+                    <option value="Ativo">Ativo</option>
+                    <option value="Cancelado">Cancelado</option>
+                    <option value="Contestada/Recusada">Contestada/Recusada</option>
+                </select>
+            </div>
+
+
+            <div class="campo">
+                <label>Validação</label>
+
+                <select data-filtro="validacao">
+                    <option value="">Todos</option>
+                    <option value="Validado">Validado</option>
+                    <option value="Solicitado">Solicitado</option>
+                    <option value="Pendente">Pendente</option>
+                </select>
+            </div>
+
+
+            <div class="campo">
+                <label>Status da baixa</label>
+
+                <select data-filtro="statusBaixa">
+                    <option value="">Todos</option>
+                    <option value="Pendente">Pendente</option>
+                    <option value="Baixada">Baixada</option>
+                </select>
+            </div>
+
+
+            <div class="campo">
+                <label>Vencimento</label>
+
+                <select data-filtro="vencimento">
+                    <option value="">Todos</option>
+                    <option value="proximo">Próximos do vencimento</option>
+                    <option value="vencido">Vencidos</option>
+                </select>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- TABELA -->
+
+    <section class="painel tabela-painel">
+
+        <div class="tabela-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Tipo</th>
+                        <th>OF</th>
+                        <th>RI</th>
+                        <th>Obra</th>
+                        <th>Nº Documento</th>
+                        <th>Fornecedor</th>
+                        <th>CNPJ</th>
+                        <th>Emissão</th>
+                        <th>Vencimento</th>
+                        <th>Recebimento</th>
+                        <th>Dias</th>
+                        <th>Valor</th>
+                        <th>Aditivo</th>
+                        <th>Status</th>
+                        <th>Validação</th>
+                        <th>Baixa</th>
+                        <th>Tratativa</th>
+                        <th>Ações</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="tabelaDocumentos"></tbody>
+
+            </table>
+
+        </div>
+
+        <div id="semDocumentos" class="sem-documentos">
+            Nenhum documento encontrado.
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- MODAL DE CONFIGURAÇÕES -->
+
+<div id="modalConfiguracoes" class="modal">
+
+    <div class="modal-conteudo">
+
+        <div class="modal-header">
+            <h2>Configurações</h2>
+
+            <button onclick="fecharConfiguracoes()">×</button>
+        </div>
+
+
+        <div class="configuracao">
+
+            <label>Logo da empresa</label>
+
+            <input
+                type="file"
+                id="arquivoLogo"
+                accept="image/*"
+            >
+
+            <p>
+                O logo será salvo localmente neste navegador.
+            </p>
+
+        </div>
+
+
+        <div class="modal-acoes">
+
+            <button class="btn secundario" onclick="removerLogo()">
+                Remover logo
+            </button>
+
+            <button class="btn principal" onclick="salvarLogo()">
+                Salvar logo
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="script.js"></script>
 
 </body>
 </html>
+```
