@@ -1,12 +1,14 @@
 ```html
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Controle de Documentos</title>
 
-    <!-- Biblioteca para trabalhar com Excel -->
+    <!-- Biblioteca Excel -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <link rel="stylesheet" href="style.css">
@@ -15,7 +17,9 @@
 <body>
 
 <header class="topo">
+
     <div class="identidade">
+
         <div id="logoContainer" class="logo-container">
             <span>LOGO</span>
         </div>
@@ -24,123 +28,188 @@
             <h1>Controle de Documentos</h1>
             <p>Gestão de notas fiscais e documentos</p>
         </div>
+
     </div>
 
-    <div class="acoes-topo">
-        <button class="btn secundario" onclick="abrirConfiguracoes()">
-            ⚙ Configurações
-        </button>
-    </div>
+    <button class="btn btn-cinza" onclick="abrirConfiguracoes()">
+        ⚙ Configurações
+    </button>
+
 </header>
 
 
 <main>
 
-    <!-- INDICADORES -->
+    <!-- =========================
+         DASHBOARD
+    ========================== -->
 
     <section class="dashboard">
 
-        <div class="indicador">
-            <span>Total de documentos</span>
-            <strong id="totalDocumentos">0</strong>
+        <div class="card-indicador card-total">
+
+            <div class="indicador-icone">▣</div>
+
+            <div class="indicador-info">
+                <span>Total de documentos</span>
+                <strong id="totalDocumentos">0</strong>
+            </div>
+
         </div>
 
-        <div class="indicador vermelho">
-            <span>Aditivos pendentes</span>
-            <strong id="totalAditivosPendentes">0</strong>
+
+        <div class="card-indicador card-pendente">
+
+            <div class="indicador-icone">!</div>
+
+            <div class="indicador-info">
+                <span>Aditivos pendentes</span>
+                <strong id="totalAditivosPendentes">0</strong>
+            </div>
+
         </div>
 
-        <div class="indicador verde">
-            <span>Aditivos realizados</span>
-            <strong id="totalAditivosRealizados">0</strong>
+
+        <div class="card-indicador card-realizado">
+
+            <div class="indicador-icone">✓</div>
+
+            <div class="indicador-info">
+                <span>Aditivos realizados</span>
+                <strong id="totalAditivosRealizados">0</strong>
+            </div>
+
         </div>
 
-        <div class="indicador amarelo">
-            <span>Validações pendentes</span>
-            <strong id="totalValidacoesPendentes">0</strong>
+
+        <div class="card-indicador card-validacao">
+
+            <div class="indicador-icone">✓</div>
+
+            <div class="indicador-info">
+                <span>Validações pendentes</span>
+                <strong id="totalValidacoesPendentes">0</strong>
+            </div>
+
         </div>
 
-        <div class="indicador alerta">
-            <span>Próximos do vencimento</span>
-            <strong id="totalProximosVencimento">0</strong>
+
+        <div class="card-indicador card-proximo">
+
+            <div class="indicador-icone">◷</div>
+
+            <div class="indicador-info">
+                <span>Próximos do vencimento</span>
+                <strong id="totalProximosVencimento">0</strong>
+            </div>
+
         </div>
 
-        <div class="indicador vencido">
-            <span>Documentos vencidos</span>
-            <strong id="totalVencidos">0</strong>
-        </div>
 
-    </section>
+        <div class="card-indicador card-vencido">
 
+            <div class="indicador-icone">!</div>
 
-    <!-- AÇÕES -->
-
-    <section class="painel acoes">
-
-        <div>
-            <h2>Importação e dados</h2>
-            <p>Importe, exporte ou faça backup dos documentos.</p>
-        </div>
-
-        <div class="botoes">
-
-            <button class="btn principal" onclick="document.getElementById('arquivoExcel').click()">
-                📥 Importar Excel
-            </button>
-
-            <button class="btn secundario" onclick="baixarModeloExcel()">
-                📋 Baixar modelo
-            </button>
-
-            <button class="btn secundario" onclick="exportarExcel()">
-                📤 Exportar Excel
-            </button>
-
-            <button class="btn secundario" onclick="fazerBackup()">
-                💾 Backup
-            </button>
-
-            <button class="btn secundario" onclick="document.getElementById('arquivoBackup').click()">
-                ↩ Restaurar
-            </button>
-
-            <input
-                type="file"
-                id="arquivoExcel"
-                accept=".xlsx,.xls"
-                hidden
-                onchange="importarExcel(event)"
-            >
-
-            <input
-                type="file"
-                id="arquivoBackup"
-                accept=".json"
-                hidden
-                onchange="restaurarBackup(event)"
-            >
+            <div class="indicador-info">
+                <span>Documentos vencidos</span>
+                <strong id="totalVencidos">0</strong>
+            </div>
 
         </div>
 
     </section>
 
 
-    <!-- CADASTRO -->
+    <!-- =========================
+         IMPORTAÇÃO
+    ========================== -->
 
     <section class="painel">
 
         <div class="titulo-secao">
+
+            <div>
+                <h2>Dados e importação</h2>
+                <p>Importe documentos ou faça uma cópia de segurança dos seus dados.</p>
+            </div>
+
+        </div>
+
+
+        <div class="botoes">
+
+            <button
+                class="btn btn-vermelho"
+                onclick="document.getElementById('arquivoExcel').click()">
+                📥 Importar Excel
+            </button>
+
+            <button
+                class="btn btn-cinza"
+                onclick="baixarModeloExcel()">
+                📋 Baixar modelo Excel
+            </button>
+
+            <button
+                class="btn btn-cinza"
+                onclick="exportarExcel()">
+                📤 Exportar Excel
+            </button>
+
+            <button
+                class="btn btn-cinza"
+                onclick="fazerBackup()">
+                💾 Fazer backup
+            </button>
+
+            <button
+                class="btn btn-cinza"
+                onclick="document.getElementById('arquivoBackup').click()">
+                ↩ Restaurar backup
+            </button>
+
+        </div>
+
+
+        <input
+            type="file"
+            id="arquivoExcel"
+            accept=".xlsx,.xls"
+            hidden
+            onchange="importarExcel(event)"
+        >
+
+        <input
+            type="file"
+            id="arquivoBackup"
+            accept=".json"
+            hidden
+            onchange="restaurarBackup(event)"
+        >
+
+    </section>
+
+
+    <!-- =========================
+         NOVO DOCUMENTO
+    ========================== -->
+
+    <section class="painel">
+
+        <div class="titulo-secao">
+
             <div>
                 <h2>Adicionar documento</h2>
-                <p>Cadastre uma nova nota manualmente.</p>
+                <p>Cadastre uma nota fiscal ou documento manualmente.</p>
             </div>
+
         </div>
 
 
         <form id="formDocumento">
 
             <div class="campo">
-                <label>Tipo de Documento</label>
+                <label for="tipoDocumento">Tipo de Documento</label>
 
                 <select id="tipoDocumento" required>
                     <option value="">Selecione</option>
@@ -153,90 +222,141 @@
 
 
             <div class="campo">
-                <label>OF</label>
+                <label for="of">OF</label>
+
                 <input
                     type="text"
                     id="of"
                     inputmode="numeric"
-                    pattern="[0-9]*"
                     placeholder="Somente números"
                 >
             </div>
 
 
             <div class="campo">
-                <label>RI</label>
+                <label for="ri">RI</label>
+
                 <input
                     type="text"
                     id="ri"
                     inputmode="numeric"
-                    pattern="[0-9]*"
                     placeholder="Somente números"
                 >
             </div>
 
 
             <div class="campo">
-                <label>Obra</label>
+                <label for="obra">Obra</label>
+
                 <input
                     type="text"
                     id="obra"
                     inputmode="numeric"
-                    pattern="[0-9]*"
                     placeholder="Somente números"
                 >
             </div>
 
 
             <div class="campo">
-                <label>Número do documento</label>
-                <input type="text" id="numeroDocumento" required>
+                <label for="numeroDocumento">
+                    Número do documento
+                </label>
+
+                <input
+                    type="text"
+                    id="numeroDocumento"
+                    required
+                >
             </div>
 
 
             <div class="campo">
-                <label>Fornecedor</label>
-                <input type="text" id="fornecedor" required>
+                <label for="fornecedor">
+                    Fornecedor
+                </label>
+
+                <input
+                    type="text"
+                    id="fornecedor"
+                    required
+                >
             </div>
 
 
             <div class="campo">
-                <label>CNPJ do fornecedor</label>
-                <input type="text" id="cnpj" placeholder="00.000.000/0000-00">
+                <label for="cnpj">
+                    CNPJ do fornecedor
+                </label>
+
+                <input
+                    type="text"
+                    id="cnpj"
+                    placeholder="00.000.000/0000-00"
+                >
             </div>
 
 
             <div class="campo">
-                <label>Data da emissão</label>
-                <input type="date" id="dataEmissao">
+                <label for="dataEmissao">
+                    Data da emissão
+                </label>
+
+                <input
+                    type="date"
+                    id="dataEmissao"
+                >
             </div>
 
 
             <div class="campo">
-                <label>Data do vencimento</label>
-                <input type="date" id="dataVencimento">
+                <label for="dataVencimento">
+                    Data do vencimento
+                </label>
+
+                <input
+                    type="date"
+                    id="dataVencimento"
+                >
             </div>
 
 
             <div class="campo">
-                <label>Valor da nota</label>
-                <input type="number" id="valor" min="0" step="0.01">
+                <label for="valor">
+                    Valor da nota
+                </label>
+
+                <input
+                    type="number"
+                    id="valor"
+                    min="0"
+                    step="0.01"
+                    placeholder="0,00"
+                >
             </div>
 
 
             <div class="campo campo-tratativa">
-                <label>Tratativa</label>
+
+                <label for="tratativa">
+                    Tratativa
+                </label>
+
                 <textarea
                     id="tratativa"
                     placeholder="Descreva a tratativa, se houver..."
                 ></textarea>
+
             </div>
 
 
             <div class="form-acoes">
-                <button type="submit" class="btn principal">
+
+                <button
+                    type="submit"
+                    class="btn btn-vermelho">
                     + Adicionar documento
                 </button>
+
             </div>
 
         </form>
@@ -244,19 +364,25 @@
     </section>
 
 
-    <!-- FILTROS -->
+    <!-- =========================
+         FILTROS
+    ========================== -->
 
     <section class="painel">
 
         <div class="titulo-secao">
+
             <div>
-                <h2>Documentos</h2>
-                <p>Use os filtros para localizar documentos.</p>
+                <h2>Filtros e pesquisa</h2>
+                <p>Use qualquer combinação de filtros para localizar documentos.</p>
             </div>
 
-            <button class="btn secundario" onclick="limparFiltros()">
+            <button
+                class="btn btn-cinza"
+                onclick="limparFiltros()">
                 Limpar filtros
             </button>
+
         </div>
 
 
@@ -294,7 +420,7 @@
 
 
             <div class="campo">
-                <label>Número</label>
+                <label>Número do documento</label>
                 <input type="text" data-filtro="numeroDocumento">
             </div>
 
@@ -330,7 +456,9 @@
                     <option value="">Todos</option>
                     <option value="Ativo">Ativo</option>
                     <option value="Cancelado">Cancelado</option>
-                    <option value="Contestada/Recusada">Contestada/Recusada</option>
+                    <option value="Contestada/Recusada">
+                        Contestada/Recusada
+                    </option>
                 </select>
             </div>
 
@@ -363,8 +491,12 @@
 
                 <select data-filtro="vencimento">
                     <option value="">Todos</option>
-                    <option value="proximo">Próximos do vencimento</option>
-                    <option value="vencido">Vencidos</option>
+                    <option value="proximo">
+                        Próximos do vencimento
+                    </option>
+                    <option value="vencido">
+                        Vencidos
+                    </option>
                 </select>
             </div>
 
@@ -373,9 +505,23 @@
     </section>
 
 
-    <!-- TABELA -->
+    <!-- =========================
+         TABELA
+    ========================== -->
 
-    <section class="painel tabela-painel">
+    <section class="painel">
+
+        <div class="tabela-topo">
+
+            <div>
+                <h2>Documentos cadastrados</h2>
+                <span id="contadorResultados">
+                    0 documentos
+                </span>
+            </div>
+
+        </div>
+
 
         <div class="tabela-container">
 
@@ -412,8 +558,13 @@
 
         </div>
 
-        <div id="semDocumentos" class="sem-documentos">
+
+        <div
+            id="semDocumentos"
+            class="sem-documentos">
+
             Nenhum documento encontrado.
+
         </div>
 
     </section>
@@ -421,22 +572,33 @@
 </main>
 
 
-<!-- MODAL DE CONFIGURAÇÕES -->
+<!-- =========================
+     MODAL CONFIGURAÇÕES
+========================== -->
 
-<div id="modalConfiguracoes" class="modal">
+<div
+    id="modalConfiguracoes"
+    class="modal">
 
     <div class="modal-conteudo">
 
         <div class="modal-header">
+
             <h2>Configurações</h2>
 
-            <button onclick="fecharConfiguracoes()">×</button>
+            <button
+                onclick="fecharConfiguracoes()">
+                ×
+            </button>
+
         </div>
 
 
         <div class="configuracao">
 
-            <label>Logo da empresa</label>
+            <label for="arquivoLogo">
+                Logo da empresa
+            </label>
 
             <input
                 type="file"
@@ -445,7 +607,7 @@
             >
 
             <p>
-                O logo será salvo localmente neste navegador.
+                O logo será armazenado somente neste navegador.
             </p>
 
         </div>
@@ -453,11 +615,15 @@
 
         <div class="modal-acoes">
 
-            <button class="btn secundario" onclick="removerLogo()">
+            <button
+                class="btn btn-cinza"
+                onclick="removerLogo()">
                 Remover logo
             </button>
 
-            <button class="btn principal" onclick="salvarLogo()">
+            <button
+                class="btn btn-vermelho"
+                onclick="salvarLogo()">
                 Salvar logo
             </button>
 
